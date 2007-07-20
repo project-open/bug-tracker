@@ -61,10 +61,10 @@ ad_proc -public bug_tracker::bug::get {
     
     # Derived fields
     set row(bug_number_display) "#$row(bug_number)"
-    set row(component_name) [bug_tracker::component_get_name -component_id $row(component_id)]
-    set row(found_in_version_name) [bug_tracker::version_get_name -version_id $row(found_in_version)]
-    set row(fix_for_version_name) [bug_tracker::version_get_name -version_id $row(fix_for_version)]
-    set row(fixed_in_version_name) [bug_tracker::version_get_name -version_id $row(fixed_in_version)]
+    set row(component_name) [bug_tracker::component_get_name -component_id $row(component_id) -package_id $row(project_id)]
+    set row(found_in_version_name) [bug_tracker::version_get_name -version_id $row(found_in_version) -package_id $row(project_id)]
+    set row(fix_for_version_name) [bug_tracker::version_get_name -version_id $row(fix_for_version) -package_id $row(project_id)]
+    set row(fixed_in_version_name) [bug_tracker::version_get_name -version_id $row(fixed_in_version) -package_id $row(project_id)]
     
     
     # Get state information
@@ -93,6 +93,7 @@ ad_proc -public bug_tracker::bug::insert {
     {-content_type "bt_bug_revision"}
     {-fix_for_version ""}
     {-assign_to ""}
+    {-bug_container_project_id ""}
 } {
     Inserts a new bug into the content repository.
     You probably don't want to run this yourself - to create a new bug, use bug_tracker::bug::new
@@ -116,8 +117,7 @@ ad_proc -public bug_tracker::bug::insert {
     set extra_vars [ns_set create]
     oacs_util::vars_to_ns_set \
         -ns_set $extra_vars \
-        -var_list { bug_id package_id component_id found_in_version summary user_agent comment_content comment_format creation_date fix_for_version assign_to}
-
+        -var_list { bug_id package_id component_id found_in_version summary user_agent comment_content comment_format creation_date fix_for_version assign_to bug_container_project_id}
 
     set bug_id [package_instantiate_object \
                     -creation_user $user_id \
@@ -147,6 +147,7 @@ ad_proc -public bug_tracker::bug::new {
     {-keyword_ids {}}
     {-fix_for_version {}}
     {-assign_to ""}
+    {-bug_container_project_id 0}
 } {
     Create a new bug, then send out notifications, starts workflow, etc.
 
@@ -155,8 +156,6 @@ ad_proc -public bug_tracker::bug::new {
     @see bug_tracker::bug::insert.
     @return bug_id The same bug_id passed in, just for convenience.
 } {
-   
-
     db_transaction {
 
         set bug_id [bug_tracker::bug::insert \
@@ -172,7 +171,8 @@ ad_proc -public bug_tracker::bug::new {
                 -ip_address $ip_address \
                 -item_subtype $item_subtype \
                 -content_type $content_type \
-		-fix_for_version $fix_for_version ]
+		-fix_for_version $fix_for_version \
+		-bug_container_project_id $bug_container_project_id ]
 
         foreach keyword_id $keyword_ids {
             cr::keyword::item_assign -item_id $bug_id -keyword_id $keyword_id
@@ -735,6 +735,10 @@ ad_proc bug_tracker::bug::get_list {
             display_col comment_short
             hide_p 1
         }
+	bug_container_project_name {
+	    label "Project"
+	    display_template {<if @bugs.bug_container_parent_name@ not nil>@bugs.bug_container_parent_name@ : </if>@bugs.bug_container_project_name@ }
+	}
         state {
             label "State"
             display_template {@bugs.pretty_state@<if @bugs.resolution@ not nil> (@bugs.resolution_pretty@)</if>}
@@ -951,6 +955,8 @@ ad_proc bug_tracker::bug::get_multirow {} {
         upvar \#[template::adp_level] $var $var
     }
 
+    set current_user_id [ad_maybe_redirect_for_registration]
+
     set workflow_id [bug_tracker::bug::get_instance_workflow_id]
     set truncate_len [parameter::get -parameter "TruncateDescriptionLength" -default 200]
 
@@ -975,6 +981,7 @@ ad_proc bug_tracker::bug::get_multirow {} {
 
     array set row_category $category_defaults
     array set row_category_names $category_defaults
+
     db_multirow -extend $extend_list bugs select_bugs [get_query] {
 
         # parent_id is part of the column name
@@ -993,7 +1000,8 @@ ad_proc bug_tracker::bug::get_multirow {} {
             set submitter_url [acs_community_member_url -user_id $submitter_user_id]
             set assignee_url [acs_community_member_url -user_id $assigned_user_id]
             set resolution_pretty [bug_tracker::resolution_pretty $resolution]
-            
+
+
             # Hide fields in this state
             foreach element $hide_fields {
                 set $element {}

@@ -5,7 +5,8 @@ ad_page_contract {
     @creation-date 2002-03-25
     @cvs-id $Id$
 } {
-    {return_url ""}
+    { return_url "" }
+    { bug_container_project_id "" }
 }
 
 if { [empty_string_p $return_url] } {
@@ -29,6 +30,22 @@ set context [list $page_title]
 
 set user_id [ad_conn user_id]
 
+if { $bug_container_project_id != "" } {
+
+  db_1row fetch_bug_container_defaults "
+    select
+	bt_found_in_version_id,
+	bt_fix_for_version_id
+    from
+	im_projects
+    where
+	project_id = :bug_container_project_id
+  "
+} else {
+    set bt_found_in_version_id [bug_tracker::conn user_version_id]
+    set bt_fix_for_version_id $bt_found_in_version_id
+}
+
 # Is this project using multiple versions?
 set versions_p [bug_tracker::versions_p]
 
@@ -45,15 +62,21 @@ ad_form -name bug -cancel_url $return_url -form {
 	{label "Summary"} 
 	{html {size 50}}
     }
+    {bug_container_project_id:integer(select)
+	{label "Project"}
+	{options {[im_bt_project_options_form]}}
+	{values $bug_container_project_id}
+    }
+
     {found_in_version:text(select),optional 
         {label "Found in Version"}  
         {options {[bug_tracker::version_get_options -include_unknown]}} 
-        {value {[bug_tracker::conn user_version_id]}}
+        {value {$bt_found_in_version_id}}
     }
     {fix_for_version:text(select),optional 
         {label "Fix For Version"}  
         {options {[bug_tracker::version_get_options -include_unknown]}} 
-        {value {[bug_tracker::conn user_version_id]}}
+        {value {$bt_fix_for_version_id}}
     }
 
     {assign_to:text(select),optional 
@@ -100,7 +123,9 @@ ad_form -extend -name bug -new_data {
 	-desc_format [template::util::richtext::get_property format $description] \
         -keyword_ids $keyword_ids \
 	-fix_for_version $fix_for_version \
-	-assign_to $assign_to
+	-assign_to $assign_to \
+	-bug_container_project_id $bug_container_project_id
+       
 
 
 } -after_submit {

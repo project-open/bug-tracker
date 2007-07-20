@@ -4,7 +4,7 @@
 
 <table cellspacing="1" cellpadding="3" class="bt_listing">
   <tr class="bt_listing_header">
-    <th>Notifications for</th>
+    <th colspan="2">Notifications for</th>
     <th>Subscribe</th>
     <th>Unsubscribe</th>
   </tr>
@@ -15,24 +15,29 @@
     <else>
       <tr class="bt_listing_even">
     </else>
+      <td align="center" class="bt_listing_narrow">
+        <if @notifications.subscribed_p@ true>
+          <b>&raquo;</b>
+        </if>
+        <else>
+          &nbsp;
+        </else>
+      </td>
       <td class="bt_listing">
         @notifications.label@
       </td>
       <td class="bt_listing">
-        <if @notifications.url_on@ ne "">
-          <a href="@notifications.url_on@">Subscribe</a>
+        <if @notifications.subscribed_p@ false>
+          <a href="@notifications.url@" title="@notifications.title@">Subscribe</a>
         </if>
       </td>
       <td class="bt_listing">
-        <if @notifications.url_off@ ne "">
-          <a href="@notifications.url_off@">Unsubscribe</a>
+        <if @notifications.subscribed_p@ true>
+          <a href="@notifications.url@" title="@notifications.title@">Unsubscribe</a>
         </if>
       </td>
     </tr>
   </multiple>
-  <tr>
-    
-  </td>
 </table>
 
 <p>

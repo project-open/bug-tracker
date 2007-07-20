@@ -93,7 +93,7 @@ ad_proc -public bug_tracker::bug::insert {
     {-content_type "bt_bug_revision"}
     {-fix_for_version ""}
     {-assign_to ""}
-    {-bug_container_project_id ""}
+    {-bug_container_project_id 0}
 } {
     Inserts a new bug into the content repository.
     You probably don't want to run this yourself - to create a new bug, use bug_tracker::bug::new
@@ -118,6 +118,9 @@ ad_proc -public bug_tracker::bug::insert {
     oacs_util::vars_to_ns_set \
         -ns_set $extra_vars \
         -var_list { bug_id package_id component_id found_in_version summary user_agent comment_content comment_format creation_date fix_for_version assign_to bug_container_project_id}
+
+    ns_log notice "xxx3: $bug_container_project_id"
+
 
     set bug_id [package_instantiate_object \
                     -creation_user $user_id \
@@ -156,6 +159,9 @@ ad_proc -public bug_tracker::bug::new {
     @see bug_tracker::bug::insert.
     @return bug_id The same bug_id passed in, just for convenience.
 } {
+   
+    ns_log notice "xxx2: $bug_container_project_id"
+
     db_transaction {
 
         set bug_id [bug_tracker::bug::insert \

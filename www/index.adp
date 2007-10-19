@@ -11,7 +11,7 @@
    </div>
 
    <div class="fullwidth-list">
-      <%= [im_box_header [_ intranet-core.Companies]] %>
+      <%= [im_box_header $page_title] %>
       <listtemplate name="bugs"></listtemplate>
       <%= [im_box_footer] %>
    </div>

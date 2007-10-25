@@ -10,7 +10,7 @@
       </div>
    </div>
 
-   <div class="fullwidth-list">
+   <div class="fullwidth-list" style="min-height: 800px;">
       <%= [im_box_header $page_title] %>
       <listtemplate name="bugs"></listtemplate>
       <%= [im_box_footer] %>

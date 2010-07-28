@@ -35,7 +35,7 @@ set project_id [ad_conn package_id]
 # TODO: Bulk actions (set fix for version, reassign, etc.)
 
 
-bug_tracker::bug::get_list -page_size ""
+bug_tracker::bug::get_list
 
 bug_tracker::bug::get_multirow
 
@@ -51,7 +51,7 @@ set filter_html $__adp_output
 set left_navbar_html "
 	<div class='filter-block'>
         	<div class='filter-title'>
-	           #intranet-core.Filter_Projects#
+	           [lang::message::lookup "" intranet-core.Filter_Bugs "Filter Bugs"]
         	</div>
             	$filter_html
       	</div>

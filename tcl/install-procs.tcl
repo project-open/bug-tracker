@@ -80,8 +80,9 @@ ad_proc -private bug_tracker::install::package_uninstantiate {
     Package un-instantiation callback proc
 } {
 
-    bug_tracker::project_delete $package_id
-    bug_tracker::bug::instance_workflow_delete -package_id $package_id
+#    fraber 151117: Now deleted in the SQL bug-tracker-drop.sql script
+#    bug_tracker::project_delete $package_id
+#    bug_tracker::bug::instance_workflow_delete -package_id $package_id
 
 }
 

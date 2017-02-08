@@ -26,6 +26,8 @@
         <requires url="acs-tcl" version="4.6.2d"/>
         <requires url="notifications" version="0.2d"/>
         <requires url="workflow" version="2.0d1"/>
+        <requires url="intranet-core" version="5.0.0.0.0"/>
+        <requires url="intranet-timesheet2-tasks" version="5.0.0.0.0"/>
 
         <callbacks>
             <callback type="after-install"  proc="bug_tracker::install::package_install"/>

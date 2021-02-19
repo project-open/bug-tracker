@@ -115,7 +115,7 @@ ns_log Notice "actions: $actions"
 # set patch label
 # JCD: The string map below is to work around a "feature" in the form generation that 
 # lets you use +var+ for a var to eval on the second round.  
-# cf http://openacs.org/bugtracker/openacs/bug?bug%5fnumber=1099
+# cf https://openacs.org/bugtracker/openacs/bug?bug%5fnumber=1099
 
 if { [empty_string_p $enabled_action_id] } {
     set patch_label [ad_decode $show_patch_status \

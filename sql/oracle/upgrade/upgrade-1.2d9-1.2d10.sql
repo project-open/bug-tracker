@@ -4,7 +4,7 @@
 --
 -- This is free software distributed under the terms of the GNU Public
 -- License.  Full text of the license is available from the GNU Project:
--- http://www.fsf.org/copyleft/gpl.html
+-- https://www.fsf.org/copyleft/gpl.html
 
 create or replace package bt_bug
 as
